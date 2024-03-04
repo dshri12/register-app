@@ -1,6 +1,7 @@
 pipeline {
-    agent { label 'Jenkins-Agent' }
-    tools {
+    agent {label "Jenkins-Agent"}
+    
+    tools{
         jdk 'Java-17'
         maven 'Maven3'
     }
@@ -13,38 +14,35 @@ pipeline {
             IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
 	    JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
-    stages{
-        stage("Cleanup Workspace"){
-                steps {
+    stages {
+        stage ("Cleanup Workspace"){
+            steps {
                 cleanWs()
-                }
-        }
-
+            }
+        } 
         stage("Checkout from SCM"){
                 steps {
                     git branch: 'main', credentialsId: 'github', url: 'https://github.com/dshri12/register-app.git'
                 }
         }
-
         stage("Build Application"){
             steps {
                 sh "mvn clean package"
             }
-
        }
-
-       stage("Test Application"){
+       stage ("Test Application"){
            steps {
-                 sh "mvn test"
+               sh "mvn test"
            }
        }
-
-       stage("SonarQube Analysis"){
+       stage ("SonarQube Analysis"){
            steps {
-	           script {
-		        withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-token') { 
-                        sh "mvn sonar:sonar"
-		        }
-	           }	
-    }   
-}    
+               script {
+                   withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-token'){
+                   sh "mvn sonar:sonar"
+                   }
+               }
+           }
+       }
+    }
+}
